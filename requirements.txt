@@ -1,11 +1,12 @@
-langchain_community
+# requirements.txt
+langchain-community
 python-dotenv
 streamlit
 langchain
 groq
 faiss-cpu
-huggingface_hub
+huggingface-hub
 bs4
 sentence-transformers
 pypdf
-
+langchain-huggingface
