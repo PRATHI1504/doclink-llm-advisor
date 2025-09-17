@@ -31,14 +31,20 @@ def get_docs(uploaded_file):
     st.sidebar.write('Documents Loaded')
     end_time = time.time()
     st.sidebar.write(f"Time taken to load documents: {end_time - start_time:.2f} seconds")
-    os.remove("temp.pdf")  # Clean up the temporary file
+    os.remove("temp.pdf") # Clean up the temporary file
     return final_documents
 
+# Cache the embeddings model to prevent re-initialization
+@st.cache_resource
+def get_embeddings():
+    return HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2", model_kwargs={"trust_remote_code": True})
+
 # Function to create vector store
-def create_vector_store(docs):
+@st.cache_resource
+def create_vector_store(_docs):
     start_time = time.time()
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2", model_kwargs={"trust_remote_code": True})
-    vectorstore = FAISS.from_documents(docs, embeddings)
+    embeddings = get_embeddings() # Use the cached embeddings
+    vectorstore = FAISS.from_documents(_docs, embeddings)
     st.sidebar.write('DB is ready 💾')
     end_time = time.time()
     st.sidebar.write(f"Time taken to create DB: {end_time - start_time:.2f} seconds")
@@ -46,11 +52,10 @@ def create_vector_store(docs):
 
 # Function to interact with Groq AI
 def chat_groq(messages):
-    load_dotenv()
-    client = Groq(api_key=os.environ.get('GROQ_API_KEY'))
+    client = Groq(api_key=st.secrets['GROQ_API_KEY']) # Use Streamlit secrets
     response_content = ''
     stream = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama3-70b-8192", # Correct model name
         messages=messages,
         max_tokens=1024,
         temperature=1.3,
