@@ -55,7 +55,7 @@ def chat_groq(messages):
     client = Groq(api_key=st.secrets['GROQ_API_KEY']) # Use Streamlit secrets
     response_content = ''
     stream = client.chat.completions.create(
-        model="llama3-70b-8192", # Correct model name
+        model="llama-3.3-70b-versatile", # Correct model name
         messages=messages,
         max_tokens=1024,
         temperature=1.3,
